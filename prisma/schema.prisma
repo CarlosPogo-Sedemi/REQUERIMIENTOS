@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  aadObjectId String   @unique
+  displayName String
+  role        Role     @default(COLABORADOR)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  upn         String   @unique
+  mail        String?
+}
+
+model Guest {
+  id         String           @id @default(cuid())
+  email      String
+  cedulaHash String
+  isActive   Boolean          @default(true)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  case       Case?
+  sessions   GuestSession[]
+  tokens     MagicLinkToken[]
+}
+
+model Case {
+  id          String           @id @default(cuid())
+  guestId     String           @unique
+  createdById String
+  status      String           @default("PENDIENTE_DOCS")
+  activatedAt DateTime?
+  expiresAt   DateTime?
+  folderUrl   String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  guest       Guest            @relation(fields: [guestId], references: [id])
+  sessions    GuestSession[]
+  tokens      MagicLinkToken[]
+}
+
+model MagicLinkToken {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  guestId     String
+  caseId      String
+  createdById String
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+  case        Case      @relation(fields: [caseId], references: [id])
+  guest       Guest     @relation(fields: [guestId], references: [id])
+}
+
+model GuestSession {
+  id          String   @id @default(cuid())
+  sessionHash String   @unique
+  guestId     String
+  caseId      String
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  case        Case     @relation(fields: [caseId], references: [id])
+  guest       Guest    @relation(fields: [guestId], references: [id])
+}
+
+enum Role {
+  COLABORADOR
+  ADMIN
+  GESTOR_TTHH
+  INVITADO_POSTULANTE
+}
+
+
+//Tablas para prueba SRI
+
+
+
+model SriRucProfile {
+  id        String   @id @default(cuid())
+  ruc       String   @unique
+
+  razonSocial                   String?
+  actividadEconomicaPrincipal   String?
+  tipoContribuyente             String?
+  regimen                       String?
+  extraJson                     Json?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+}
+
+model SriInvoice {
+  id                     String   @id @default(cuid())
+  claveAcceso            String   @unique
+  rucEmisor              String
+  razonSocialEmisor      String
+  tipoComprobante        String
+  serieComprobante       String
+  fechaAutorizacion      DateTime?
+  fechaEmision           DateTime?
+  identificacionReceptor String?
+  valorSinImpuestos      Decimal  @db.Decimal(14, 2)
+  iva                    Decimal  @db.Decimal(14, 2)
+  importeTotal           Decimal  @db.Decimal(14, 2)
+  numeroDocumentoModificado String?
+
+  sourceTxtName          String?
+  rawRow                 Json?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  files                  SriInvoiceFile[]
+
+  @@index([rucEmisor]) //Consultas frecuentes por RUC emisor
+}
+
+model SriInvoiceFile {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  kind        SriFileKind
+  fileName    String
+  mimeType    String
+  storagePath String
+  sizeBytes   Int?
+  sha256      String?
+  createdAt   DateTime @default(now())
+
+  invoice     SriInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+enum SriFileKind {
+  TXT
+  XML
+  PDF
+}

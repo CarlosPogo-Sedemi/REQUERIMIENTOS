@@ -1,0 +1,8 @@
+instalar prisma:___________
+npm i prisma @prisma/client
+npx prisma init
+
+npx prisma generate
+npx prisma format 
+npx prisma init 
+npm i bcryptjs    
