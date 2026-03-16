@@ -1,31 +1,39 @@
-// app/api/empleado/route.ts
-import { NextResponse } from 'next/server';
-import axios from 'axios';
-import https from 'https';
+import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
-    try {
-        const body = await request.json();
-        const { cedula } = body;
+export async function POST(req: Request) {
+  try {
 
-        // Usamos la variable de entorno aquí
-        const apiUrl = process.env.SEDEMI_API_URL;
+    const body = await req.json();
 
-        if (!apiUrl) {
-            throw new Error("La variable SEDEMI_API_URL no está configurada.");
-        }
+    const response = await fetch(
+      "https://backstack.sedemi.com:7048/api/EvolutionEmployee/EmployeesEvolution",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          parameter: body.parameter || "",
+          estado: "A",
+          codEmpresa: "",
+          codDepartamento: ""
+        }),
+      }
+    );
 
-        const response = await axios.post(apiUrl, {
-            parameter: cedula,
-            estado: "A",
-            codEmpresa: "",
-            codDepartamento: ""
-        }, {
-            httpsAgent: new https.Agent({ rejectUnauthorized: false })
-        });
+    const data = await response.json();
 
-        return NextResponse.json(response.data);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    return NextResponse.json(data);
+
+  } catch (error) {
+
+    return NextResponse.json(
+      {
+        error: "Error al consultar la API",
+        detail: error
+      },
+      { status: 500 }
+    );
+
+  }
 }
