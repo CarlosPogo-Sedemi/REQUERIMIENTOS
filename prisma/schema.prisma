@@ -143,3 +143,56 @@ enum SriFileKind {
   XML
   PDF
 }
+
+model Empleado {
+  cedula            String    @id
+  nombrecompleto    String?
+  apellidos         String?
+  nombres           String?
+  codEmpresa        String?
+  empresa           String?
+  codPersona        String?
+  mailEmpresa       String?
+  telefono          String?
+  mailPersonal      String?
+  provincia         String?
+  canton            String?
+  codPosicion       String?
+  posicion          String?
+  codPerfil         String?
+  codPuesto         String?
+  puesto            String?
+  codDepartamento   String?
+  departamento      String?
+  codPosicionJefe   String?
+  nombresReportaA   String?
+  cedulaReportaA    String?
+  reportaA          String?
+  codFamilia        String?
+  familiaPuesto     String?
+  codSeccion        String?
+  seccion           String?
+  codArea           String?
+  area              String?
+  codUnidad         String?
+  unidad            String?
+  fechaAntiguedad   DateTime?
+  fechaIngreso      DateTime?
+  barrio            String?
+  callePrincipal    String?
+  calleSecundaria   String?
+  numeroCasa        String?
+  fechaIniContrato  DateTime?
+  fechaFinContrato  DateTime?
+  tipoContrato      String?
+  codNivelDir       String?
+  nivelDireccion    String?
+  codCargoTipo      String?
+  cargoTipo         String?
+  salario           Float?
+  sexo              String?
+  estado            String?
+  
+  // Campo tecnico para saber cuando fue la ultima vez que este registro se actualizo
+  ultimaSincronizacion DateTime @updatedAt
+}
