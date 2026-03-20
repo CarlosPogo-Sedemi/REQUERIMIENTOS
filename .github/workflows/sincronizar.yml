@@ -1,0 +1,37 @@
+name: Sincronización Diaria de Empleados
+
+on:
+  # Permite ejecutar el script manualmente desde un botón en GitHub
+  workflow_dispatch: 
+  
+  # Ejecución automática 3 veces al día (Horarios en UTC)
+  # 12:00 UTC = 7:00 AM Ecuador
+  # 17:00 UTC = 12:00 PM Ecuador
+  # 23:00 UTC = 18:00 PM Ecuador
+  schedule:
+    - cron: '0 12,17,23 * * *'
+
+jobs:
+  sincronizar-bd:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Generar cliente de Prisma
+        run: npx prisma generate
+
+      - name: Ejecutar Script de Sincronización
+        run: npx tsx scripts/sincronizar.ts
+        env:
+          # Le pasamos la conexión de la base de datos de forma segura
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
