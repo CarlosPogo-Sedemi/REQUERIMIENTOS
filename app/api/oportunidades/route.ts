@@ -24,10 +24,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: 'Error al conectar con Zoho' }, { status: 500 });
   }
 
-  // Retornamos los datos formateados
   return NextResponse.json({
     total: oportunidades.length,
-    datos_empresas: JSON.stringify(oportunidades.map((op: any, index: number) => ({
+    oportunidades: oportunidades.map((op: any, index: number) => ({
       id: op.id || op.Deal_Id || `op-${index}`,
       cliente: op.customerName,
       ruc: op.ruc,
@@ -35,6 +34,6 @@ export async function GET(request: NextRequest) {
       oficina: op.saleOffice,
       estado: op.type,
       fecha: op.uploadDate
-    })))
+    }))
   });
 }
